@@ -71,49 +71,52 @@ class DLM_Migrate_Counts{
     public function action_handler(){
 
         if( isset( $_GET['dlm_migrate_counts'] ) && '1' === $_GET['dlm_migrate_counts'] ){
+           
             if( !get_option( 'dlm_mdc_ran', false) ){
-                
-                if ( empty( $_REQUEST['nonce'] ) || ! wp_verify_nonce( wp_unslash( $_REQUEST['nonce'] ), 'dlm_mdc_nonce' ) ) {
-                    return false;
-                }
+                return false;
+            }
 
-                if( !current_user_can( 'manage_options' ) ){
-                    return false;
-                }
+            if ( empty( $_REQUEST['nonce'] ) || ! wp_verify_nonce( wp_unslash( $_REQUEST['nonce'] ), 'dlm_mdc_nonce' ) ) {
+                return false;
+            }
 
-                global $wpdb;
+            if( !current_user_can( 'manage_options' ) ){
+                return false;
+            }
 
-                $downloads = $wpdb->get_results( "SELECT count(download_id) as download_count, download_id FROM " . $wpdb->download_log . " GROUP BY download_id LIMIT 0, 999999", 'ARRAY_A' );
-            
-                foreach( $downloads as $download ){
-                    $meta_count = absint( get_post_meta( $download['download_id'], '_download_count', true ) );
+            global $wpdb;
 
-                    if( $meta_count && '' != $meta_count ){
+            $downloads = $wpdb->get_results( "SELECT count(download_id) as download_count, download_id FROM " . $wpdb->download_log . " GROUP BY download_id LIMIT 0, 999999", 'ARRAY_A' );
+        
+            foreach( $downloads as $download ){
+                $meta_count = absint( get_post_meta( $download['download_id'], '_download_count', true ) );
 
-                        if( $meta_count > absint( $download['download_count'] ) ){
+                if( $meta_count && '' != $meta_count ){
 
-                            $meta_count = $meta_count - absint( $download['download_count'] );
-                            update_post_meta( $download['download_id'], '_download_count', $meta_count );
-                        }elseif( $meta_count < absint( $download['download_count'] ) ){
+                    if( $meta_count > absint( $download['download_count'] ) ){
 
-                            delete_post_meta( $download['download_id'], '_download_count' );
-                        }
+                        $meta_count = $meta_count - absint( $download['download_count'] );
+                        update_post_meta( $download['download_id'], '_download_count', $meta_count );
+                    }elseif( $meta_count < absint( $download['download_count'] ) ){
 
+                        delete_post_meta( $download['download_id'], '_download_count' );
                     }
 
                 }
-                add_option(
-                    'dlm_mdc_ran',
-                    array(
-                        'dlm_version'     => DLM_VERSION,
-                        'dlm_mdc_version' => DLM_MDC_VERSION,
-                        'upgraded_date' => wp_date( 'Y-m-d' ) . ' 00:00:00',
-                    )
-                );
 
-                wp_redirect( add_query_arg( 'dlm_migrate_success', 1, get_admin_url() ) );
-                exit;
             }
+            add_option(
+                'dlm_mdc_ran',
+                array(
+                    'dlm_version'     => DLM_VERSION,
+                    'dlm_mdc_version' => DLM_MDC_VERSION,
+                    'upgraded_date' => wp_date( 'Y-m-d' ) . ' 00:00:00',
+                )
+            );
+
+            wp_redirect( add_query_arg( 'dlm_migrate_success', 1, get_admin_url() ) );
+            exit;
+            
         }
     }
 
