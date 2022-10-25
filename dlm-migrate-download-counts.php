@@ -38,13 +38,22 @@ class DLM_Migrate_Counts{
 	 * @return void
 	 */
 	public function admin_notices() {
+
+        if( !current_user_can( 'manage_options' ) ){
+            return false;
+        }
+
+        if( !class_exists('WP_DLM')){
+            return false;
+        }
+
         if( !get_option( 'dlm_mdc_ran', false) ){
             ?>
             <div id="dlm-migrate-download-counts-notice" class="notice notice-warning" style="margin-top:30px;">
                 <h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-counts' ); ?></h2>
                 <p><?php esc_html_e( 'Click the button below to migrate your Download Monitor\'s download counts. This is a one time only action.', 'dlm-migrate-counts' ); ?></p>
                 <p>
-                    <a href=" <?php echo add_query_arg( 'dlm_migrate_counts', 1, get_admin_url() ); ?> "  class="button button-primary"><?php esc_html_e( 'Sync Manual Counts With Reports', 'dlm-migrate-counts' ); ?></a>
+                    <a href=" <?php echo add_query_arg( array( 'dlm_migrate_counts' => 1, 'nonce' => wp_create_nonce( 'dlm_mdc_nonce' ) ), get_admin_url() ); ?> "  class="button button-primary"><?php esc_html_e( 'Sync Manual Counts With Reports', 'dlm-migrate-counts' ); ?></a>
                 </p>
             </div>
             <?php
@@ -53,7 +62,7 @@ class DLM_Migrate_Counts{
             ?>
             <div id="dlm-migrate-download-counts-notice" class="notice notice-success" style="margin-top:30px;">
                 <h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-counts' ); ?></h2>
-                <p><?php esc_html_e( 'Download Monitor\'s download counts have been migrated.', 'dlm-migrate-counts' ); ?></p>
+                <p><?php esc_html_e( 'Download Monitor\'s download counts have been migrated. You can now delete this plugin.', 'dlm-migrate-counts' ); ?></p>
             </div>
             <?php
         }
@@ -61,7 +70,14 @@ class DLM_Migrate_Counts{
 
     public function action_handler(){
 
-        if( isset( $_GET['dlm_migrate_counts'] ) && '1' === $_GET['dlm_migrate_counts'] ){
+        if( isset( $_GET['dlm_migrate_counts'] ) && '1' === $_GET['dlm_migrate_counts'] && !get_option( 'dlm_mdc_ran', false)){
+
+            wp_verify_nonce( $_REQUEST['nonce'], 'dlm_mdc_nonce' );
+
+            if( !current_user_can( 'manage_options' ) ){
+                return false;
+            }
+
 			global $wpdb;
 
 			$downloads = $wpdb->get_results( "SELECT count(download_id) as download_count, download_id FROM " . $wpdb->download_log . " GROUP BY download_id LIMIT 0, 999999", 'ARRAY_A' );
