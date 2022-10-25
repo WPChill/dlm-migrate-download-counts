@@ -70,9 +70,11 @@ class DLM_Migrate_Counts{
 
     public function action_handler(){
 
-        if( isset( $_GET['dlm_migrate_counts'] ) && '1' === $_GET['dlm_migrate_counts'] && !get_option( 'dlm_mdc_ran', false)){
-
-            wp_verify_nonce( $_REQUEST['nonce'], 'dlm_mdc_nonce' );
+        if( isset( $_GET['dlm_migrate_counts'] ) && '1' === $_GET['dlm_migrate_counts'] ){
+            if( !get_option( 'dlm_mdc_ran', false) ){
+            if ( empty( $_REQUEST['nonce'] ) || ! wp_verify_nonce( wp_unslash( $_REQUEST['nonce'] ), 'dlm_mdc_nonce' ) ) {
+                return false;
+            }
 
             if( !current_user_can( 'manage_options' ) ){
                 return false;
@@ -110,7 +112,7 @@ class DLM_Migrate_Counts{
 
             wp_redirect( add_query_arg( 'dlm_migrate_success', 1, get_admin_url() ) );
             exit;
-
+        }
         }
     }
 
