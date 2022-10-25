@@ -72,7 +72,7 @@ class DLM_Migrate_Counts{
 
         if( isset( $_GET['dlm_migrate_counts'] ) && '1' === $_GET['dlm_migrate_counts'] ){
            
-            if( !get_option( 'dlm_mdc_ran', false) ){
+            if( get_option( 'dlm_mdc_ran', false) ){
                 return false;
             }
 
