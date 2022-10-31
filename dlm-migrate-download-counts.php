@@ -185,12 +185,11 @@ class DLM_Migrate_Counts{
         // Loop
         global $wpdb;
 
-        $downloads = $wpdb->get_results( "SELECT download_id FROM " . $wpdb->download_log . " GROUP BY download_id LIMIT 0, 999999", 'ARRAY_A' );
-    
-        foreach( $downloads as $download ){
-            $download_count = get_post_meta( $download['download_id'], '_download_count', true );
+        $downloads = $wpdb->get_results( "SELECT post_id as download_id, meta_value as download_count FROM " . $wpdb->postmeta . " WHERE meta_key = '_download_count' LIMIT 0, 999999", 'ARRAY_A' );
 
-            $csv_string .= ( isset( $download['download_id'] ) ? $download['download_id'] : 0 ). ',' . ( $download_count ? $download_count : '0' ) . PHP_EOL;
+        foreach( $downloads as $download ){
+
+            $csv_string .= ( isset( $download['download_id'] ) ? $download['download_id'] : 0 ). ',' . ( $download['download_count'] ? $download['download_count'] : '0' ) . PHP_EOL;
 
         }
 
