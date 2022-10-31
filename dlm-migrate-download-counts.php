@@ -19,6 +19,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * Migrate download counts class.
+ */
 class DLM_Migrate_Counts {
 
 	const VERSION = '1.0.0';
@@ -52,24 +55,45 @@ class DLM_Migrate_Counts {
 		}
 
 		if ( ! get_option( 'dlm_mdc_ran', false ) ) {
+
+			$exported = '1' === get_option( 'dlm_mdc_exported', '0' );
+
+			if ( isset( $_SERVER['DLM-MDC'] ) && 'exported' === $_SERVER['DLM-MDC'] ) {
+				$exported = true;
+			}
+
+			$export_url = add_query_arg(
+				array(
+					'dlm_mdc_action' => 'export',
+					'dlm_mdc_nonce'  => wp_create_nonce( 'dlm_mdc_nonce' )
+				)
+			);
+
 			?>
 			<div id="dlm-migrate-download-counts-notice" class="notice notice-warning" style="margin-top:30px;">
-				<h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-counts' ); ?></h2>
+				<h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-download-counts' ); ?></h2>
 				<p><?php esc_html_e( 'Click the button below to migrate your Download Monitor\'s download counts. This is a one time only action.', 'dlm-migrate-counts' ); ?></p>
-				<p>
-					<a href=" <?php
-					echo esc_url(
-						add_query_arg(
-							array(
-								'dlm_migrate_counts' => 1,
-								'dlm_mdc_nonce'      => wp_create_nonce( 'dlm_mdc_nonce' )
-							),
-							get_admin_url()
-						)
-					);
-					?> "
-					   class="button button-primary"><?php esc_html_e( 'Sync Manual Counts With Reports', 'dlm-migrate-counts' ); ?></a>
-				</p>
+				<ul class="dlm-mdc-notice-list">
+					<li>
+						<span><?php echo esc_html__( 'Step 1:', 'dlm-migrate-download-counts' ); ?></span>
+						<a href="<?php echo esc_url( $export_url ); ?>"
+						   class="button button-primary <?php echo ! $exported ? '' : esc_attr( 'disabled' ); ?>"><?php echo ! $exported ? esc_html__( 'Export Downloads information and refresh page', 'dlm-migrate-download-counts' ) : esc_html__( 'Exported', 'dlm-migrate-download-counts' ); ?> </a>
+					</li>
+					<li>
+						<span><?php echo esc_html__( 'Step 2:', 'dlm-migrate-download-counts' ); ?></span>
+						<a href=" <?php
+						echo esc_url(
+							add_query_arg(
+								array(
+									'dlm_migrate_counts' => 1,
+									'dlm_mdc_nonce'      => wp_create_nonce( 'dlm_mdc_nonce' )
+								)
+							)
+						);
+						?> "
+						   class="button button-primary <?php echo $exported ? '' : esc_attr( 'disabled' ); ?>"><?php esc_html_e( 'Sync Downloads info with new counting system', 'dlm-migrate-counts' ); ?></a>
+					</li>
+				</ul>
 			</div>
 			<?php
 		}
@@ -116,22 +140,47 @@ class DLM_Migrate_Counts {
 
 			global $wpdb;
 
-			$downloads = $wpdb->get_results( "SELECT count(download_id) as download_count, download_id FROM " . $wpdb->download_log . " GROUP BY download_id LIMIT 0, 999999", 'ARRAY_A' );
+			$versions              = $wpdb->get_results( 'SELECT count(version_id) as version_count, version_id, download_id FROM ' . $wpdb->download_log . ' GROUP BY version_id ORDER BY download_id;', 'ARRAY_A' );
+			$download_id           = 0;
+			$download_parent_count = 0;
+			$i                     = 1;
+			foreach ( $versions as $version ) {
 
-			foreach ( $downloads as $download ) {
-				$meta_count = absint( get_post_meta( $download['download_id'], '_download_count', true ) );
-
-				if ( $meta_count && '' != $meta_count ) {
-
-					if ( $meta_count > absint( $download['download_count'] ) ) {
-
-						$meta_count = $meta_count - absint( $download['download_count'] );
-						update_post_meta( $download['download_id'], '_download_count', $meta_count );
-					} elseif ( $meta_count < absint( $download['download_count'] ) ) {
-
-						delete_post_meta( $download['download_id'], '_download_count' );
+				if ( isset( $version['download_id'] ) ) {
+					if ( 0 === $download_id ) {
+						$download_id = $version['download_id'];
+					}
+					if ( $download_id !== $version['download_id'] ) {
+						update_post_meta( $download_id, '_download_count', $download_parent_count );
+						// Now set the new $download_id and reset the download count.
+						$download_id           = $version['download_id'];
+						$download_parent_count = 0;
 					}
 				}
+
+				// Version's meta count.
+				$meta_count = absint( get_post_meta( $version['version_id'], '_download_count', true ) );
+
+				if ( ! empty( $meta_count ) ) {
+
+					if ( $meta_count > absint( $version['version_count'] ) ) {
+
+						$meta_count = $meta_count - absint( $version['version_count'] );
+						// If there is a meta count, we need to add it to the parent download.
+						$download_parent_count = $download_parent_count + $meta_count;
+						update_post_meta( $version['version_id'], '_download_count', $meta_count );
+					} elseif ( $meta_count < absint( $version['download_count'] ) ) {
+						delete_post_meta( $version['download_id'], '_download_count' );
+					}
+				}
+				$i ++;
+				// Check this also because we may have reached the end of the array.
+				if ( $i >= count( $versions ) ) {
+					// If we are going to another set of parents, update the parent download count.
+					update_post_meta( $download_id, '_download_count', $download_parent_count );
+				}
+				// If we are going to another set of parents, update the parent download count.
+				update_post_meta( $download_id, '_download_count', $download_parent_count );
 			}
 
 			add_option(
@@ -143,16 +192,16 @@ class DLM_Migrate_Counts {
 				)
 			);
 
-			wp_redirect( add_query_arg( 'dlm_migrate_success', 1, get_admin_url() ) );
+			wp_safe_redirect( add_query_arg( 'dlm_migrate_success', 1 ) );
 			exit;
 
 		} elseif ( isset( $_REQUEST['dlm_mdc_action'] ) && 'export' === $_REQUEST['dlm_mdc_action'] ) {
-
 			$this->csv_export();
 		} elseif ( isset( $_REQUEST['dlm_mdc_action'] ) && 'import' === $_REQUEST['dlm_mdc_action'] ) {
 
 			$this->csv_import();
 		}
+
 	}
 
 	/**
@@ -230,7 +279,7 @@ class DLM_Migrate_Counts {
 
 		// Check.
 		if ( '' !== $csv_string ) {
-
+			update_option( 'dlm_mdc_exported', '1' );
 			// Ouput the CSV headers.
 			$this->output_headers();
 
@@ -322,6 +371,28 @@ function _dlm_mdc() {
 	define( 'DLM_MDC_URL', plugin_dir_url( __FILE__ ) );
 	define( 'DLM_MDC_VERSION', '1.0.0' );
 
+	// Add a small style snippet for our notice.
+	add_action(
+		'admin_head',
+		function () {
+			?>
+			<style>
+				#dlm-migrate-download-counts-notice .dlm-mdc-notice-list li {
+					margin-bottom: 10px;
+				}
+
+				#dlm-migrate-download-counts-notice .dlm-mdc-notice-list li * {
+					display: inline-block;
+					vertical-align: middle;
+					margin-right:5px;
+				}
+				#dlm-migrate-download-counts-notice .dlm-mdc-notice-list li .disabled {
+					pointer-events: none;
+				}
+			</style>
+			<?php
+		}
+	);
 	new DLM_Migrate_Counts();
 }
 

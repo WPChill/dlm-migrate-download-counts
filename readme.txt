@@ -5,7 +5,7 @@ Requires at least: 5.4
 Tested up to: 6.0
 Stable tag: 1.0.0
 License: GPLv3
-Text Domain: dlm_mdc_nonce
+Text Domain: dlm-migrate-download-counts
 Requires PHP: 5.6
 
 == Description ==
