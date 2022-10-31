@@ -54,7 +54,7 @@ class DLM_Migrate_Counts{
                 <h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-counts' ); ?></h2>
                 <p><?php esc_html_e( 'Click the button below to migrate your Download Monitor\'s download counts. This is a one time only action.', 'dlm-migrate-counts' ); ?></p>
                 <p>
-                    <a href=" <?php echo add_query_arg( array( 'dlm_migrate_counts' => 1, 'dlm_mdc_nonce' => wp_create_nonce( 'dlm_mdc_nonce' ) ), get_admin_url() ); ?> "  class="button button-primary"><?php esc_html_e( 'Sync Manual Counts With Reports', 'dlm-migrate-counts' ); ?></a>
+                    <a href=" <?php echo esc_url( add_query_arg( array( 'dlm_migrate_counts' => 1, 'dlm_mdc_nonce' => wp_create_nonce( 'dlm_mdc_nonce' ) ), get_admin_url() ) ); ?> "  class="button button-primary"><?php esc_html_e( 'Sync Manual Counts With Reports', 'dlm-migrate-counts' ); ?></a>
                 </p>
             </div>
             <?php
@@ -142,12 +142,12 @@ class DLM_Migrate_Counts{
         <div class="card">
 			<h2 class="title"><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-counts' ); ?></h2>
 			<div>
-                <p>Export DLM downloads meta</p>
-                <a href=" <?php echo add_query_arg( array( 'dlm_mdc_action' => 'export', 'dlm_mdc_nonce' => wp_create_nonce( 'dlm_mdc_nonce' ) ), get_admin_url() . 'tools.php' ); ?> "  class="button button-primary"><?php esc_html_e( 'Export to CSV', 'dlm-migrate-counts' ); ?></a>
+                <p><?php esc_html_e( 'Export DLM downloads meta', 'dlm-migrate-counts' ); ?></p>
+                <a href="<?php echo esc_url( add_query_arg( array( 'dlm_mdc_action' => 'export', 'dlm_mdc_nonce' => wp_create_nonce( 'dlm_mdc_nonce' ) ), get_admin_url() . 'tools.php' ) ); ?> "  class="button button-primary"><?php esc_html_e( 'Export to CSV', 'dlm-migrate-counts' ); ?></a>
             </div>
 			<div>
                 <form enctype="multipart/form-data" method="POST" action="<?php echo get_admin_url() . 'tools.php'; ?>">
-                <p> or import DLM downloads meta</p>
+                <p><?php esc_html_e( 'or import DLM downloads meta', 'dlm-migrate-counts' ); ?></p>
                 <input type="hidden" value="<?php echo wp_create_nonce( 'dlm_mdc_nonce' ); ?>" name="dlm_mdc_nonce" />
                 <input type="hidden" value="import" name="dlm_mdc_action" />
                 <input type="file" name="dlm_migrate_counts_csv" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/><br>
@@ -201,7 +201,7 @@ class DLM_Migrate_Counts{
             $this->output_headers();
 
             // Output the string
-            echo $csv_string;
+            echo wp_kses_post( $csv_string );
             exit;
 
         } else {
@@ -254,13 +254,13 @@ class DLM_Migrate_Counts{
                     delete_post_meta( $metas['download_id'], '_download_count' );
                 }else{
 
-                    update_post_meta( $metas['download_id'], '_download_count', $metas['_download_count'] );
+                    update_post_meta( $metas['download_id'], '_download_count', absint( $metas['_download_count'] ) );
                 }
             }else{
 
                 if( 0 !== absint( $metas['_download_count'] ) ){
 
-                    add_post_meta( $metas['download_id'], '_download_count', $metas['_download_count']  );
+                    add_post_meta( $metas['download_id'], '_download_count', absint( $metas['_download_count'] ) );
                 }
             }
 
