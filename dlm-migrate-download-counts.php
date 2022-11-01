@@ -103,6 +103,7 @@ class DLM_Migrate_Counts {
 					   class="button button-primary <?php echo $exported ? '' : esc_attr( 'disabled' ); ?>"><?php echo esc_html( $migrate_text ); ?></a>
 				</li>
 			</ul>
+			<p class="description"><span class="dashicons dashicons-warning"></span> <?php echo sprintf( __( 'Info and why this is needed can be found <a href="%s" target="_blank">here</a>', 'dlm-migrate-download-counts' ), esc_url( 'https://www.download-monitor.com/kb/migrate-download-counts/' ) ) ?></p>
 		</div>
 		<?php
 
