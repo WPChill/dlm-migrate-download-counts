@@ -54,55 +54,63 @@ class DLM_Migrate_Counts {
 			return false;
 		}
 
-		if ( ! get_option( 'dlm_mdc_ran', false ) ) {
+		$exported = '1' === get_option( 'dlm_mdc_exported', '0' );
 
-			$exported = '1' === get_option( 'dlm_mdc_exported', '0' );
-
-			if ( isset( $_SERVER['DLM-MDC'] ) && 'exported' === $_SERVER['DLM-MDC'] ) {
-				$exported = true;
-			}
-
-			$export_url = add_query_arg(
-				array(
-					'dlm_mdc_action' => 'export',
-					'dlm_mdc_nonce'  => wp_create_nonce( 'dlm_mdc_nonce' )
-				)
-			);
-
-			?>
-			<div id="dlm-migrate-download-counts-notice" class="notice notice-warning" style="margin-top:30px;">
-				<h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-download-counts' ); ?></h2>
-				<p><?php esc_html_e( 'Click the button below to migrate your Download Monitor\'s download counts. This is a one time only action.', 'dlm-migrate-counts' ); ?></p>
-				<ul class="dlm-mdc-notice-list">
-					<li>
-						<span><?php echo esc_html__( 'Step 1:', 'dlm-migrate-download-counts' ); ?></span>
-						<a href="<?php echo esc_url( $export_url ); ?>"
-						   class="button button-primary <?php echo ! $exported ? '' : esc_attr( 'disabled' ); ?>"><?php echo ! $exported ? esc_html__( 'Export Downloads information and refresh page', 'dlm-migrate-download-counts' ) : esc_html__( 'Exported', 'dlm-migrate-download-counts' ); ?> </a>
-					</li>
-					<li>
-						<span><?php echo esc_html__( 'Step 2:', 'dlm-migrate-download-counts' ); ?></span>
-						<a href=" <?php
-						echo esc_url(
-							add_query_arg(
-								array(
-									'dlm_migrate_counts' => 1,
-									'dlm_mdc_nonce'      => wp_create_nonce( 'dlm_mdc_nonce' )
-								)
-							)
-						);
-						?> "
-						   class="button button-primary <?php echo $exported ? '' : esc_attr( 'disabled' ); ?>"><?php esc_html_e( 'Sync Downloads info with new counting system', 'dlm-migrate-counts' ); ?></a>
-					</li>
-				</ul>
-			</div>
-			<?php
+		if ( isset( $_SERVER['DLM-MDC'] ) && 'exported' === $_SERVER['DLM-MDC'] ) {
+			$exported = true;
 		}
+
+		$export_url = add_query_arg(
+			array(
+				'dlm_mdc_action' => 'export',
+				'dlm_mdc_nonce'  => wp_create_nonce( 'dlm_mdc_nonce' )
+			)
+		);
+
+		$migrated     = get_option( 'dlm_mdc_ran', false );
+		$migrate_text = __( 'Sync Downloads info with new counting system', 'dlm-migrate-download-counts' );
+		$migrate_url  = add_query_arg(
+			array(
+				'dlm_migrate_counts' => 1,
+				'dlm_mdc_nonce'      => wp_create_nonce( 'dlm_mdc_nonce' )
+			)
+		);
+
+		if ( $migrated ) {
+			$migrate_text = __( 'Recreate sync  environment', 'dlm-migrate-download-counts' );
+			$migrate_url  = add_query_arg(
+				array(
+					'dlm_redo_sync' => 1,
+					'dlm_mdc_nonce' => wp_create_nonce( 'dlm_mdc_nonce' )
+				),
+				remove_query_arg( array( 'dlm_migrate_counts', 'dlm_migrate_success' ) )
+			);
+		}
+
+		?>
+		<div id="dlm-migrate-download-counts-notice" class="notice notice-warning" style="margin-top:30px;">
+			<h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-download-counts' ); ?></h2>
+			<p><?php esc_html_e( 'Click the button below to migrate your Download Monitor\'s download counts. This is a one time only action.', 'dlm-migrate-download-counts' ); ?></p>
+			<ul class="dlm-mdc-notice-list">
+				<li>
+					<span><?php echo esc_html__( 'Step 1:', 'dlm-migrate-download-counts' ); ?></span>
+					<a href="<?php echo esc_url( $export_url ); ?>"
+					   class="button button-primary <?php echo ! $exported ? '' : esc_attr( 'disabled' ); ?>"><?php echo ! $exported ? esc_html__( 'Export Downloads information and refresh page', 'dlm-migrate-download-counts' ) : esc_html__( 'Exported', 'dlm-migrate-download-counts' ); ?> </a>
+				</li>
+				<li>
+					<span><?php echo esc_html__( 'Step 2:', 'dlm-migrate-download-counts' ); ?></span>
+					<a href=" <?php echo esc_url( $migrate_url ); ?> "
+					   class="button button-primary <?php echo $exported ? '' : esc_attr( 'disabled' ); ?>"><?php echo esc_html( $migrate_text ); ?></a>
+				</li>
+			</ul>
+		</div>
+		<?php
 
 		if ( isset( $_REQUEST['dlm_migrate_success'] ) && '1' === $_REQUEST['dlm_migrate_success'] ) {
 			?>
 			<div id="dlm-migrate-download-counts-notice" class="notice notice-success" style="margin-top:30px;">
-				<h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-counts' ); ?></h2>
-				<p><?php esc_html_e( 'Download Monitor\'s download counts have been migrated. You can now delete this plugin.', 'dlm-migrate-counts' ); ?></p>
+				<h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-download-counts' ); ?></h2>
+				<p><?php esc_html_e( 'Download Monitor\'s download counts have been migrated. You can now delete this plugin.', 'dlm-migrate-download-counts' ); ?></p>
 			</div>
 			<?php
 		}
@@ -110,8 +118,8 @@ class DLM_Migrate_Counts {
 		if ( isset( $_REQUEST['dlm_meta_import_success'] ) && '1' === $_REQUEST['dlm_meta_import_success'] ) {
 			?>
 			<div id="dlm-migrate-download-counts-notice" class="notice notice-success" style="margin-top:30px;">
-				<h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-counts' ); ?></h2>
-				<p><?php esc_html_e( 'Download Monitor\'s meta import was successfull.', 'dlm-migrate-counts' ); ?></p>
+				<h2><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-download-counts' ); ?></h2>
+				<p><?php esc_html_e( 'Download Monitor\'s meta import was successfull.', 'dlm-migrate-download-counts' ); ?></p>
 			</div>
 			<?php
 		}
@@ -169,7 +177,7 @@ class DLM_Migrate_Counts {
 						// If there is a meta count, we need to add it to the parent download.
 						$download_parent_count = $download_parent_count + $meta_count;
 						update_post_meta( $version['version_id'], '_download_count', $meta_count );
-					} elseif ( $meta_count < absint( $version['download_count'] ) ) {
+					} elseif ( isset( $version['download_count'] ) && $meta_count < absint( $version['download_count'] ) ) {
 						delete_post_meta( $version['download_id'], '_download_count' );
 					}
 				}
@@ -202,6 +210,10 @@ class DLM_Migrate_Counts {
 			$this->csv_import();
 		}
 
+		if ( isset( $_GET['dlm_redo_sync'] ) && '1' === $_GET['dlm_redo_sync'] ) {
+			delete_option( 'dlm_mdc_ran' );
+		}
+
 	}
 
 	/**
@@ -212,25 +224,25 @@ class DLM_Migrate_Counts {
 	public function csv_export_import() {
 		?>
 		<div class="card">
-			<h2 class="title"><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-counts' ); ?></h2>
+			<h2 class="title"><?php esc_html_e( 'Download Monitor - Migrate Download Counts', 'dlm-migrate-download-counts' ); ?></h2>
 			<div>
-				<p><?php esc_html_e( 'Export DLM downloads meta', 'dlm-migrate-counts' ); ?></p>
+				<p><?php esc_html_e( 'Export DLM downloads meta', 'dlm-migrate-download-counts' ); ?></p>
 				<a href="<?php echo esc_url( add_query_arg( array(
 					                                            'dlm_mdc_action' => 'export',
 					                                            'dlm_mdc_nonce'  => wp_create_nonce( 'dlm_mdc_nonce' )
 				                                            ), get_admin_url() . 'tools.php' ) ); ?> "
-				   class="button button-primary"><?php esc_html_e( 'Export to CSV', 'dlm-migrate-counts' ); ?></a>
+				   class="button button-primary"><?php esc_html_e( 'Export to CSV', 'dlm-migrate-download-counts' ); ?></a>
 			</div>
 			<div>
 				<form enctype="multipart/form-data" method="POST" action="<?php echo get_admin_url() . 'tools.php'; ?>">
-					<p><?php esc_html_e( 'or import DLM downloads meta', 'dlm-migrate-counts' ); ?></p>
+					<p><?php esc_html_e( 'or import DLM downloads meta', 'dlm-migrate-download-counts' ); ?></p>
 					<input type="hidden" value="<?php echo wp_create_nonce( 'dlm_mdc_nonce' ); ?>"
 					       name="dlm_mdc_nonce"/>
 					<input type="hidden" value="import" name="dlm_mdc_action"/>
 					<input type="file" name="dlm_migrate_counts_csv"
 					       accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/><br>
 					<button
-						class="button button-primary"><?php esc_html_e( 'Import from CSV', 'dlm-migrate-counts' ); ?></button>
+						class="button button-primary"><?php esc_html_e( 'Import from CSV', 'dlm-migrate-download-counts' ); ?></button>
 			</div>
 		</div>
 		<?php
