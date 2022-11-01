@@ -1,0 +1,108 @@
+# Copyright (C) 2022 WPChill
+# This file is distributed under the GPL v3.
+msgid ""
+msgstr ""
+"Project-Id-Version: Download Monitor - Migrate Download Counts 1.0.0\n"
+"Report-Msgid-Bugs-To: "
+"https://wordpress.org/support/plugin/dlm-migrate-download-counts\n"
+"POT-Creation-Date: 2022-11-01 10:45:47+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2022-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Country: United States\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: "
+"__;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;_nx_noop:1,2,3c;esc_"
+"attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;esc_html_x:1,2c;\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-Bookmarks: \n"
+"X-Textdomain-Support: yes\n"
+"X-Generator: grunt-wp-i18n 1.0.3\n"
+
+#: dlm-migrate-download-counts.php:81
+msgid "Sync Downloads info with new counting system"
+msgstr ""
+
+#: dlm-migrate-download-counts.php:90
+msgid "Recreate sync  environment"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Download Monitor - Migrate Download Counts"
+msgstr ""
+
+#: dlm-migrate-download-counts.php:103
+msgid ""
+"Click the button below to migrate your Download Monitor's download counts. "
+"This is a one time only action."
+msgstr ""
+
+#: dlm-migrate-download-counts.php:106
+msgid "Step 1:"
+msgstr ""
+
+#: dlm-migrate-download-counts.php:108
+msgid "Export Downloads information and refresh page"
+msgstr ""
+
+#: dlm-migrate-download-counts.php:108
+msgid "Exported"
+msgstr ""
+
+#: dlm-migrate-download-counts.php:111
+msgid "Step 2:"
+msgstr ""
+
+#: dlm-migrate-download-counts.php:116
+msgid ""
+"Info and why this is needed can be found <a href=\"%s\" "
+"target=\"_blank\">here</a>"
+msgstr ""
+
+#: dlm-migrate-download-counts.php:124
+msgid ""
+"Download Monitor's download counts have been migrated. You can now delete "
+"this plugin."
+msgstr ""
+
+#: dlm-migrate-download-counts.php:133
+msgid "Download Monitor's meta import was successfull."
+msgstr ""
+
+#: dlm-migrate-download-counts.php:240
+msgid "Export DLM downloads meta"
+msgstr ""
+
+#: dlm-migrate-download-counts.php:245
+msgid "Export to CSV"
+msgstr ""
+
+#: dlm-migrate-download-counts.php:249
+msgid "or import DLM downloads meta"
+msgstr ""
+
+#: dlm-migrate-download-counts.php:256
+msgid "Import from CSV"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://www.download-monitor.com/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Migrate DLM download counts"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "WPChill"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://wpchill.com"
+msgstr ""

@@ -35,8 +35,18 @@ class DLM_Migrate_Counts {
 			add_action( 'admin_notices', array( $this, 'admin_notices' ), 8 );
 			add_action( 'admin_init', array( $this, 'action_handler' ) );
 			add_action( 'tool_box', array( $this, 'csv_export_import' ) );
+			add_action( 'init', array( $this, 'set_locale' ) );
 		}
 
+	}
+
+	/**
+	 * Load plugin text domain
+	 *
+	 * @return void
+	 */
+	public function set_locale() {
+		load_plugin_textdomain( 'dlm-migrate-download-counts', false, DLM_MDC_PATH . '/languages' );
 	}
 
 	/**
