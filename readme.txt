@@ -1,4 +1,4 @@
-=== Download Monitor ===
+=== Download Monitor - Migrate download counts ===
 Contributors: wpchill
 Tags: download manager, document management, file manager, digital store, ecommerce, document management plugin,  download monitor, download counter, password protection, download protection, password, protect downloads, tracker, sell, shop, ecommerce, paypal
 Requires at least: 5.4
