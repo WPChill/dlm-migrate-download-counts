@@ -3,7 +3,7 @@
 	Plugin Name: Download Monitor - Migrate Download Counts
 	Plugin URI: https://www.download-monitor.com/
 	Description: Migrate DLM download counts
-	Version: 1.0.0
+	Version: 1.0.1
 	Author: WPChill
 	Author URI: https://wpchill.com
 	License: GPL v3
