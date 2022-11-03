@@ -3,7 +3,7 @@
 	Plugin Name: Download Monitor - Migrate Download Counts
 	Plugin URI: https://www.download-monitor.com/
 	Description: Migrate DLM download counts
-	Version: 1.0.1
+	Version: 1.0.2
 	Author: WPChill
 	Author URI: https://wpchill.com
 	License: GPL v3
@@ -24,7 +24,7 @@
  */
 class DLM_Migrate_Counts {
 
-	const VERSION = '1.0.1';
+	const VERSION = '1.0.2';
 
 	/**
 	 * DLM_Migrate_Counts constructor.
@@ -169,6 +169,7 @@ class DLM_Migrate_Counts {
 					if ( 0 === $download_id ) {
 						$download_id = $version['download_id'];
 					}
+
 					if ( $download_id !== $version['download_id'] ) {
 						update_post_meta( $download_id, '_download_count', $download_parent_count );
 						// Now set the new $download_id and reset the download count.
@@ -188,13 +189,13 @@ class DLM_Migrate_Counts {
 						// If there is a meta count, we need to add it to the parent download.
 						$download_parent_count = $download_parent_count + $meta_count;
 						update_post_meta( $version['version_id'], '_download_count', $meta_count );
-					} elseif ( isset( $version['download_count'] ) && $meta_count < absint( $version['download_count'] ) ) {
-						delete_post_meta( $version['download_id'], '_download_count' );
+					} elseif ( isset( $version['version_count'] ) ) {
+						delete_post_meta( $version['version_id'], '_download_count' );
 					}
 				}
 				$i ++;
 				// Check this also because we may have reached the end of the array.
-				if ( $i >= count( $versions ) ) {
+				if ( $i > count( $versions ) ) {
 					// If we are going to another set of parents, update the parent download count.
 					update_post_meta( $download_id, '_download_count', $download_parent_count );
 				}
@@ -390,7 +391,7 @@ function _dlm_mdc() {
 
 	define( 'DLM_MDC_PATH', plugin_dir_path( __FILE__ ) );
 	define( 'DLM_MDC_URL', plugin_dir_url( __FILE__ ) );
-	define( 'DLM_MDC_VERSION', '1.0.1' );
+	define( 'DLM_MDC_VERSION', '1.0.2' );
 
 	// Add a small style snippet for our notice.
 	add_action(
