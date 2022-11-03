@@ -24,7 +24,7 @@
  */
 class DLM_Migrate_Counts {
 
-	const VERSION = '1.0.0';
+	const VERSION = '1.0.1';
 
 	/**
 	 * DLM_Migrate_Counts constructor.
@@ -198,8 +198,6 @@ class DLM_Migrate_Counts {
 					// If we are going to another set of parents, update the parent download count.
 					update_post_meta( $download_id, '_download_count', $download_parent_count );
 				}
-				// If we are going to another set of parents, update the parent download count.
-				update_post_meta( $download_id, '_download_count', $download_parent_count );
 			}
 
 			add_option(
@@ -392,7 +390,7 @@ function _dlm_mdc() {
 
 	define( 'DLM_MDC_PATH', plugin_dir_path( __FILE__ ) );
 	define( 'DLM_MDC_URL', plugin_dir_url( __FILE__ ) );
-	define( 'DLM_MDC_VERSION', '1.0.0' );
+	define( 'DLM_MDC_VERSION', '1.0.1' );
 
 	// Add a small style snippet for our notice.
 	add_action(
